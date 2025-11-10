@@ -1,0 +1,74 @@
+JAVA
+FROM eclipse-temurin:25-jdk  (FROM openjdk)
+WORKDIR /app
+COPY hi.java .
+RUN javac hi.java
+CMD ["java", "hi"]
+
+
+docker build -t im2 . 
+docker login -u prarthanakh
+docker tag im2 docker.io/prarthanakh/im2:latest
+docker push docker.io/prarthanakh/im2:latest
+
+PYTHON
+
+FROM python:3.12-slim
+WORKDIR /app
+COPY hi.py .
+CMD ["python", "hi.py"]
+
+docker build -t im3 .
+docker tag sha256:f9b91b2f179adf94d844a8e28b329a63d93f148b3820fc97a71e88e5a773e807/prarthanakh/im3
+docker tag im3 docker.io/prarthanakh/im3:latest
+docker push docker.io/prarthanakh/im3:latest 
+
+
+WEB
+
+FROM httpd:latest
+COPY hi.html /usr/local/apache2/htdocs/
+
+
+docker build -t im4 .
+docker run -d --name con4 -p 8090:80 im4
+docker tag sha256:b82256c8a7588cda531d7b3aa2999d17027895ee8668bd92318d7bfd77b47157 prarthanakh/im4
+docker push docker.io/prarthanakh/im4
+
+C
+
+FROM gcc:14 AS build
+WORKDIR /app
+COPY hi.c .
+RUN gcc -O2 -o app hi.c
+
+FROM debian:bookworm-slim
+WORKDIR /app
+COPY --from=build /app/app .
+CMD ["./app"]
+
+
+docker build -t c-app .
+docker login -u prarthanakh
+docker tag c-app docker.io/prarthanakh/c-app:latest
+docker push docker.io/prarthanakh/c-app:latest
+
+
+cpp
+
+FROM gcc:14 AS build
+WORKDIR /app
+COPY hi.cpp .
+RUN g++ -O2 -o app hi.cpp
+
+FROM debian:bookworm-slim
+WORKDIR /app
+COPY --from=build /app/app .
+CMD ["./app"]
+
+docker build -t cpp-app .
+docker login -u prarthanakh
+docker tag sha256:b4cc90d4764ce0a4ee92ea09c63645736021fb0549e9ef0da370f5d3ca4b7d80 prarthanakh/cpp-app
+docker push docker.io/prarthanakh/cpp-app
+
+
